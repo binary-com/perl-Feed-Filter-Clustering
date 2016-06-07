@@ -9,6 +9,8 @@ use parent qw/Exporter/;
 
 our @EXPORT_OK = qw/filter/;
 
+our $VERSION = '0.01';
+
 # private lexical function, which calculates MAD (mean absolute deviation)
 my $_mad = sub {
     my ($mad, $ad, $trust, $density, $ds) = @_;
