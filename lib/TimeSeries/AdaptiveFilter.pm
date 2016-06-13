@@ -15,9 +15,11 @@ Version 0.01
 =head1 STATUS
 
 =begin HTML
+
 <p>
     <a href="https://travis-ci.org/binary-com/perl-TimeSeries-AdaptiveFilter"><img src="https://travis-ci.org/binary-com/perl-TimeSeries-AdaptiveFilter.svg" /></a>
 </p>
+
 =end HTML
 
 =cut
