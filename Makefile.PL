@@ -35,7 +35,7 @@ WriteMakefile(
             }
         ) : ()
     ),
-    (eval { ExtUtils::MakeMaker->VERSION(6.46) } ? ( MIN_PERL_VERSION => '5.8.1') : ()),
+    (eval { ExtUtils::MakeMaker->VERSION(6.46) } ? ( MIN_PERL_VERSION => '5.10.0') : ()),
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'TimeSeries-AdaptiveFilter*' },
 );
