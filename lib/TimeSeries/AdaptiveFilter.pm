@@ -71,14 +71,6 @@ and their usage, please, look at the shipped C<doc> folder.
 
 =cut
 
-
-# private lexical function, which calculates MAD (mean absolute deviation)
-my $_mad = sub {
-    my ($mad, $ad, $trust, $density, $ds) = @_;
-    my $mu = $trust * (1 - exp(-$density * $ds));
-    return (1 - $mu) * $mad + $mu * $ad;
-};
-
 my $sqrt2pi = 1 / sqrt(2 * atan2(1, 1));
 
 sub filter {
@@ -105,14 +97,14 @@ sub filter {
     ## enclosed variables ##
     ########################
 
-    my $lookback          = [];
+    my @lookback;
     my $lookback_rejected = 0;
-    my $minute            = [];
+    my @minute;
     my $trust_w;
     my $ad;
-    my $ads = [];    # used on build stage only
+    my @ads;    # used on build stage only
     my $mad;
-    my $mads;
+    my @mads;
     my $wsum = 0;
     my $csum = 0;
     my $vol;
@@ -130,8 +122,8 @@ sub filter {
         $spot = log $spot;
 
         # prevent loopback window overgrow
-        while (@$lookback > $lookback_capacity or @$lookback > $floor and $lookback->[0][0] < $epoch - $lookback_period) {
-            my $leaving = shift @$lookback;
+        while (@lookback > $lookback_capacity or @lookback > $floor and $lookback[0][0] < $epoch - $lookback_period) {
+            my $leaving = shift @lookback;
             --$lookback_rejected unless $leaving->[3];
         }
         my $accepted;
@@ -141,30 +133,30 @@ sub filter {
             ($trust_w, $accepted) = (1, 1);
 
             # gather absolute differences
-            unless (@$lookback < $build_up_count) {
-                $ad = abs($spot - $lookback->[-$build_up_count][1]) / sqrt($build_up_count);
-                push @$ads, $ad;
+            unless (@lookback < $build_up_count) {
+                $ad = abs($spot - $lookback[-$build_up_count][1]) / sqrt($build_up_count);
+                push @ads, $ad;
             }
 
             # build condition: the current tick is 60s newer
             # and we have enough absolute differences
-            if (    @$minute
-                and $minute->[0] < $epoch - 60
-                and @$ads >= $build_up_count)
+            if (    @minute
+                and $minute[0] < $epoch - 60
+                and @ads >= $build_up_count)
             {
                 $build = 0;
-                my @ads = sort { $a <=> $b } @$ads;
-                my $cut = int(@ads / $build_up_count);
-                @ads  = @ads[$cut .. ($build_up_count - 1) * $cut];
-                $mad  = sum(@ads) / @ads;
-                $mads = [($mad) x scalar(@$decay_speeds)];
+                my @new_ads = sort { $a <=> $b } @ads;
+                my $cut = int(@new_ads / $build_up_count);
+                @new_ads = @new_ads[$cut .. ($build_up_count - 1) * $cut];
+                $mad     = sum(@new_ads) / @new_ads;
+                @mads    = ($mad) x scalar(@$decay_speeds);
             }
         } else {
-            # prevent $minute array overgrow
-            while (@$minute and $minute->[0] < $epoch - 60) {
-                shift @$minute;
+            # prevent @minute overgrow
+            while (@minute and $minute[0] < $epoch - 60) {
+                shift @minute;
             }
-            my $density = 60 / (1 + @$minute);    # the number "1", beacuse we account the current value too
+            my $density = 60 / (1 + @minute);    # the number "1", beacuse we account the current value too
             my $ha      = $wsum / $csum;
             my $vol     = $mad / $sqrt2pi;
             my $diff    = abs($spot - $ha);
@@ -179,19 +171,21 @@ sub filter {
             $accepted = !($reject > $reject_criterium);
             $trust_w = 1 / (1 + ($reject / $reject_criterium)**8);
 
-            if (not $accepted and $lookback_rejected > $cap * @$lookback) {
+            if (not $accepted and $lookback_rejected > $cap * @lookback) {
                 ($accepted, $trust_w) = (1, 1);
             }
             $ad = abs($spot - $_accepted->[-$build_up_count][1]) / sqrt($build_up_count);
             if ($ad) {
                 for my $idx (0 .. @$decay_speeds - 1) {
-                    $mads->[$idx] = $_mad->($mads->[$idx], $ad, $trust_w, $density, $decay_speeds->[$idx]);
+                    # MAD (mean absolute deviation)
+                    my $mu = $trust_w * (1 - exp(-$density * $decay_speeds->[$idx]));
+                    $mads[$idx] = (1 - $mu) * $mads[$idx] + $mu * $ad;
                 }
             }
-            $mad = max(@$mads);
+            $mad = max(@mads);
         }
-        push @$minute, $epoch;
-        push @$lookback, [$epoch, $spot, $trust_w, $accepted];
+        push @minute, $epoch;
+        push @lookback, [$epoch, $spot, $trust_w, $accepted];
         if ($accepted) {
             push @$_accepted, [$epoch, $spot];
             shift @$_accepted while @$_accepted > $build_up_count;
