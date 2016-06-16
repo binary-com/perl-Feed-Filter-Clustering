@@ -6,11 +6,11 @@ TimeSeries::AdaptiveFilter - Adaptive filter for data stream with possible outli
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 VERSION
 
-Version 0.03
+Version 0.04
 
 =head1 STATUS
 
@@ -29,7 +29,7 @@ use warnings;
 
 use List::Util qw(sum max);
 
-use parent qw/Exporter/;
+use Exporter qw/import/;
 
 our @EXPORT_OK = qw/filter/;
 

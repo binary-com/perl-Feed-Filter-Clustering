@@ -4,7 +4,7 @@ TimeSeries::AdaptiveFilter - Adaptive filter for data stream with possible outli
 
 # VERSION
 
-Version 0.03
+Version 0.04
 
 # STATUS
 
