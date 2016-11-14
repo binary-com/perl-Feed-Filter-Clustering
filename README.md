@@ -1,5 +1,8 @@
 # NAME
 
+[![Build Status](https://travis-ci.org/binary-com/perl-TimeSeries-AdaptiveFilter.svg?branch=master)](https://travis-ci.org/binary-com/perl-TimeSeries-AdaptiveFilter)
+[![codecov](https://codecov.io/gh/binary-com/perl-TimeSeries-AdaptiveFilter/branch/master/graph/badge.svg)](https://codecov.io/gh/binary-com/perl-TimeSeries-AdaptiveFilter)
+
 TimeSeries::AdaptiveFilter - Adaptive filter for data stream with possible outliers
 
 # VERSION
