@@ -1,4 +1,6 @@
 package TimeSeries::AdaptiveFilter;
+use strict;
+use warnings;
 
 =head1 NAME
 
@@ -6,11 +8,7 @@ TimeSeries::AdaptiveFilter - Adaptive filter for data stream with possible outli
 
 =cut
 
-our $VERSION = '0.04';
-
-=head1 VERSION
-
-Version 0.04
+our $VERSION = '0.05';
 
 =head1 STATUS
 
@@ -23,9 +21,6 @@ Version 0.04
 =end HTML
 
 =cut
-
-use strict;
-use warnings;
 
 use List::Util qw(sum max);
 
@@ -66,12 +61,18 @@ our @EXPORT_OK = qw/filter/;
 
 =head1 DESCRIPTION
 
-For the details of underlying mathematical model of the filter, configurable paramters
+For the details of underlying mathematical model of the filter, configurable parameters
 and their usage, please, look at the shipped C<doc> folder.
 
 =cut
 
 my $sqrt2pi = 1 / sqrt(2 * atan2(1, 1));
+
+=head1 FUNCTIONS
+
+=head2 filter
+
+=cut
 
 sub filter {
     my $params = shift;
@@ -107,7 +108,6 @@ sub filter {
     my @mads;
     my $wsum = 0;
     my $csum = 0;
-    my $vol;
     my $_accepted;
 
     # flag initicates, that we still need to accumulate enough time series
